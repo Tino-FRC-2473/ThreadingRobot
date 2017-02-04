@@ -36,28 +36,28 @@ public class ThreadingRobot extends IterativeRobot {
 	Map<String, Subsystem> subsystems;
 	public ArrayBlockingQueue<String> tempData;
 	private int delay = 10;
-	
+
 	@Override
 	public void robotInit() {
 		database = new Database(this);
 		sense = new SensorThread(this, delay);
-		
-		//code for creating all networking threads
+
+		// code for creating all networking threads
 		ServerSocket server;
-		
+
 		try {
 			server = new ServerSocket(server_port);
 			Socket socket = server.accept();
 			OutputStream out_stream = socket.getOutputStream();
-			out = new PrintStream(out_stream);			
-		} catch(IOException e) {
+			out = new PrintStream(out_stream);
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		subsystems = new HashMap<>();
-		commandsMap = new HashMap<>();		
-		updater = new UpdaterThread(this,commandsMap);
-		flush = new FlusherThread(this,out);
+		commandsMap = new HashMap<>();
+		updater = new UpdaterThread(this, commandsMap);
+		flush = new FlusherThread(this, out);
 		addCommandListeners();
 	}
 
@@ -68,32 +68,32 @@ public class ThreadingRobot extends IterativeRobot {
 	public void setDelay(int delay) {
 		this.delay = delay;
 	}
-	
-	//Method to override
+
+	// Method to override
 	public Map<String, DoubleSupplier> deviceCalls() {
 		Map<String, DoubleSupplier> returner = new HashMap<>();
-		
+
 		return returner;
 	}
-	
-	//Method to override
+
+	// Method to override
 	public ArrayList<String> setDeviceIDs() {
 		return new ArrayList<String>();
 	}
 
-	//Method to override
+	// Method to override
 	public ArrayList<String> setButtonRefs() {
 		return new ArrayList<String>();
 	}
 
-	//Method to override
+	// Method to override
 	public void resetEncoders() {
-		
+
 	}
-	
-	//Method to override
+
+	// Method to override
 	public void resetGyro() {
-		
+
 	}
 
 	public void startThreads() {
@@ -101,14 +101,15 @@ public class ThreadingRobot extends IterativeRobot {
 		updater.start();
 		flush.start();
 	}
+
 	public void addCommandListeners() {
-		for(String key : subsystems.keySet()) {
+		for (String key : subsystems.keySet()) {
 			commandsMap.put(key, () -> subsystems.get(key).getCurrentCommand());
 		}
 	}
 
 	public void addSystems() {
-//		subsystems.put("ExampleSubsystem", new ExampleSubsystem());		
+		// subsystems.put("ExampleSubsystem", new ExampleSubsystem());
 	}
 
 	@Override
@@ -145,22 +146,23 @@ public class ThreadingRobot extends IterativeRobot {
 	public void testPeriodic() {
 		LiveWindow.run();
 	}
-	
+
 	public void setPort(int server) {
 		server_port = server;
 	}
-	
+
 	public int getPort() {
-		return server_port; 
+		return server_port;
 	}
 }
+
 class SensorThread extends Thread {
 	private ThreadingRobot robot;
 	private final int TIME;
 	private volatile boolean alive = true;
 	private Map<String, Double> temp;
 	private Map<String, DoubleSupplier> callMap;
-	
+
 	public SensorThread(ThreadingRobot bot, int seconds) {
 		robot = bot;
 		TIME = seconds;
@@ -168,7 +170,7 @@ class SensorThread extends Thread {
 		callMap = robot.deviceCalls();
 		resetDevices();
 	}
-	
+
 	public SensorThread(ThreadingRobot bot) {
 		robot = bot;
 		TIME = 10;
@@ -177,32 +179,32 @@ class SensorThread extends Thread {
 		callMap = Collections.unmodifiableMap(callMap);
 		resetDevices();
 	}
-	
+
 	@Override
 	public void run() {
-		while(alive) {
-			updateDevices();			
+		while (alive) {
+			updateDevices();
 			try {
 				Thread.sleep(TIME);
-			} catch(InterruptedException e) {
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	public void kill() {
 		alive = false;
 	}
-	
+
 	public boolean isDead() {
 		return !alive;
 	}
-	
+
 	public void resetDevices() {
 		robot.resetEncoders();
 		robot.resetGyro();
 	}
-	
+
 	public void updateDevices() {
 		for (String key : callMap.keySet()) {
 			temp.put(key, callMap.get(key).getAsDouble());//
@@ -210,23 +212,24 @@ class SensorThread extends Thread {
 
 		for (String key : temp.keySet()) {
 			robot.database.setValue(key, temp.get(key));
-		}		
+		}
 	}
 }
+
 class UpdaterThread extends Thread {
 	Map<String, Supplier<Command>> commandMap;
 	ThreadingRobot robot;
 	boolean alive = true;
-	
+
 	public UpdaterThread(ThreadingRobot bot, Map<String, Supplier<Command>> systems) {
 		robot = bot;
 		commandMap = systems;
 		super.setDaemon(true);
 	}
-	
+
 	@Override
 	public void run() {
-		while(alive) {
+		while (alive) {
 			try {
 				String str = "";
 				for (String key : robot.database.getDeviceIDs()) {
@@ -243,29 +246,29 @@ class UpdaterThread extends Thread {
 				e.printStackTrace();
 			}
 		}
-	}	
-	
+	}
+
 	public void end() {
 		alive = false;
 	}
 }
+
 class FlusherThread extends Thread {
 	boolean alive;
 	ThreadingRobot robot;
 	PrintStream out;
 	int delay;
-	
-	
+
 	public FlusherThread(ThreadingRobot bot, PrintStream out) {
 		robot = bot;
 		this.out = out;
 		alive = true;
 		super.setDaemon(false);
-		
-		if(1000/robot.getDelay() >= 10) {
+
+		if (1000 / robot.getDelay() >= 10) {
 			delay = 1000;
 		} else {
-			delay = robot.getDelay()*10;
+			delay = robot.getDelay() * 10;
 		}
 	}
 
@@ -278,63 +281,63 @@ class FlusherThread extends Thread {
 		while (alive) {
 			ArrayList<String> arr = new ArrayList<>();
 			robot.tempData.drainTo(arr);
-			
-			for(int i = 0; i < arr.size(); i++) {
+
+			for (int i = 0; i < arr.size(); i++) {
 				out.println(arr.get(i));
 			}
-			
+
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-	}	
+	}
 }
+
 class Database {
 	private ThreadingRobot robot;
 	private Map<String, ThreadSafeHolder> deviceMap;
-	private Map<String, ThreadSafeInternalButton> buttonMap;	
+	private Map<String, ThreadSafeInternalButton> buttonMap;
 	private final ArrayList<String> device_ids, button_refs;
-	
-	
+
 	public Database(ThreadingRobot bot) {
 		robot = bot;
 		device_ids = getDeviceIDs();
 		button_refs = getButtonRefs();
-		
-		HashMap<String, ThreadSafeHolder> tempMap = new HashMap<>();		
+
+		HashMap<String, ThreadSafeHolder> tempMap = new HashMap<>();
 		deviceMap = Collections.synchronizedMap(tempMap);
 		fillDeviceMap();
 		buttonMap = Collections.synchronizedMap(new HashMap<>());
-		fillButtonMap();		
-		
+		fillButtonMap();
+
 	}
 
 	public ArrayList<String> getDeviceIDs() {
-		if(device_ids == null) {
-			return robot.setDeviceIDs();			
+		if (device_ids == null) {
+			return robot.setDeviceIDs();
 		} else {
 			return device_ids;
 		}
 	}
-	
+
 	public ArrayList<String> getButtonRefs() {
 		return robot.setButtonRefs();
 	}
 
 	private void fillDeviceMap() {
-		for(String key : device_ids) {
+		for (String key : device_ids) {
 			deviceMap.put(key, new ThreadSafeHolder());
 		}
 	}
 
 	private void fillButtonMap() {
-		for(String key : button_refs) {
+		for (String key : button_refs) {
 			buttonMap.put(key, new ThreadSafeInternalButton());
 		}
 	}
-	
+
 	public double getValue(String key) {
 		return deviceMap.get(key).getValue();
 	}
@@ -342,15 +345,16 @@ class Database {
 	public void setValue(String key, double val) {
 		deviceMap.get(key).setValue(val);
 	}
-	
+
 	public synchronized Button getButton(String ref) {
 		return buttonMap.get(ref);
 	}
-	
+
 	public synchronized void setButtonValue(String ref, boolean newValue) {
 		buttonMap.get(ref).setPressed(newValue);
-	}	
+	}
 }
+
 class ThreadSafeHolder {
 
 	private volatile double value;
@@ -375,6 +379,7 @@ class ThreadSafeHolder {
 		}
 	}
 }
+
 class ThreadSafeInternalButton extends InternalButton {
 
 	@Override
