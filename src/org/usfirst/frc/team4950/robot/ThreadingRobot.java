@@ -241,7 +241,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return server_port;
 	}
 
-	private void runTeleop() {
+	protected void runTeleop() {
 		if (!isTimerRunning) {
 			robotControlLoop.scheduleAtFixedRate(new TimerTask() {
 
