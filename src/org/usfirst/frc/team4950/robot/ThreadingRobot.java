@@ -1,4 +1,3 @@
-
 package org.usfirst.frc.team4950.robot;
 
 import java.io.IOException;
@@ -6,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,9 +18,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.usfirst.frc.team4950.robot.subsystems.ExampleSubsystem;
-
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.InternalButton;
 import edu.wpi.first.wpilibj.command.Command;
@@ -637,4 +636,106 @@ class ThreadSafeInternalButton extends InternalButton {
 		super.cancelWhenPressed(command);
 	}
 
+}
+
+class ThreadingJoystick extends Joystick {
+
+	String ref;
+	DoubleSupplier value;
+
+	public ThreadingJoystick(int port, int numAxisTypes, int numButtonTypes, String ref, String value) {
+		super(port, numAxisTypes, numButtonTypes);
+		this.ref = ref;
+		this.value = getAsDoubleSupplier(value);
+	}
+
+	public ThreadingJoystick(int port, String ref, String value) {
+		super(port);
+		this.ref = ref;
+		this.value = getAsDoubleSupplier(value);
+	}
+
+	/**
+	 * @return the ref
+	 */
+	public String getRef() {
+		return ref;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public DoubleSupplier getValue() {
+		return value;
+	}
+
+	private DoubleSupplier getAsDoubleSupplier(String supplier) {
+		DoubleSupplier returner;
+		if (supplier.equals("X")) {
+			returner = () -> getX();
+		} else if (supplier.equals("Y")) {
+			returner = () -> getY();
+		} else if (supplier.equals("Z")) {
+			returner = () -> getZ();
+		} else {
+			throw new InvalidParameterException("The supplier has to be x, y, or z.");
+		}
+		return returner;
+	}
+
+}
+
+class ThreadingButton extends InternalButton {
+	private String ref;
+	private BooleanSupplier value;
+	private Command command;
+	private String condition;
+
+	public ThreadingButton(String ref, BooleanSupplier value, String condition, Command command) {
+		this.ref = ref;
+		this.value = value;
+		this.command = command;
+	}
+
+	public void activate(Button button) {
+		if (condition.equals("held")) {
+			button.whileHeld(command);
+		} else if (condition.equals("pressed")) {
+			button.whenPressed(command);
+		} else if (condition.equals("released")) {
+			button.whenReleased(command);
+		} else if (condition.equals("toggle")) {
+			button.toggleWhenPressed(command);
+		} else if (condition.equals("cancel")) {
+			button.cancelWhenPressed(command);
+		}
+	}
+
+	/**
+	 * @return the ref
+	 */
+	public String getRef() {
+		return ref;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public BooleanSupplier getValue() {
+		return value;
+	}
+
+	/**
+	 * @return the command
+	 */
+	public Command getCommand() {
+		return command;
+	}
+
+	/**
+	 * @return the condition
+	 */
+	public String getCondition() {
+		return condition;
+	}
 }
