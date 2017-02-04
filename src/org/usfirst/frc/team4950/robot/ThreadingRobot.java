@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -34,11 +35,14 @@ public class ThreadingRobot extends IterativeRobot {
 	public Database database;
 	Map<String, Supplier<Command>> commandsMap;
 	Map<String, Subsystem> subsystems;
+	private ArrayList<ThreadingJoystick> joyList;
+	private Map<String, DoubleSupplier> deviceCalls;
 	public ArrayBlockingQueue<String> tempData;
 	private int delay = 10;
 
 	@Override
 	public void robotInit() {
+		joyList = new ArrayList<>();
 		database = new Database(this);
 		sense = new SensorThread(this, delay);
 
@@ -56,9 +60,15 @@ public class ThreadingRobot extends IterativeRobot {
 
 		subsystems = new HashMap<>();
 		commandsMap = new HashMap<>();
+		deviceCalls = new HashMap<>();
+		updateDeviceCalls();
 		updater = new UpdaterThread(this, commandsMap);
 		flush = new FlusherThread(this, out);
 		addCommandListeners();
+	}
+
+	public double getDeviceValue(String deviceID) {
+		return database.getValue(deviceID);
 	}
 
 	public int getDelay() {
@@ -69,11 +79,47 @@ public class ThreadingRobot extends IterativeRobot {
 		this.delay = delay;
 	}
 
+	public void addDeviceCall(String deviceID, DoubleSupplier supplier) {
+		deviceCalls.put(deviceID, supplier);
+	}
+
+	public void addJoy(int port, String ref, String value) {
+		joyList.add(new ThreadingJoystick(port, ref, value));
+	}
+
+	public double getJoyValue(String key) {
+		return database.getJoyValue(key);
+	}
+
+	public void addJoy(int port, int numAxisTypes, int numButtonTypes, String ref, String value) {
+		joyList.add(new ThreadingJoystick(port, numAxisTypes, numButtonTypes, ref, value));
+	}
+
+	public ArrayList<ThreadingJoystick> getJoysticks() {
+		return joyList;
+	}
+
+	public ArrayList<String> setJoyRefs() {
+		ArrayList<String> returner = new ArrayList<>();
+		for (ThreadingJoystick joy : joyList) {
+			returner.add(joy.getRef());
+		}
+		return returner;
+	}
+
+	// Method to override
+	public void updateDeviceCalls() {
+
+	}
+
+	// Method to override
+	public void updateJoyList() {
+
+	}
+
 	// Method to override
 	public Map<String, DoubleSupplier> deviceCalls() {
-		Map<String, DoubleSupplier> returner = new HashMap<>();
-
-		return returner;
+		return deviceCalls;
 	}
 
 	// Method to override
@@ -168,6 +214,7 @@ class SensorThread extends Thread {
 		TIME = seconds;
 		temp = new HashMap<>();
 		callMap = robot.deviceCalls();
+		callMap = Collections.unmodifiableMap(callMap);
 		resetDevices();
 	}
 
@@ -299,18 +346,22 @@ class Database {
 	private ThreadingRobot robot;
 	private Map<String, ThreadSafeHolder> deviceMap;
 	private Map<String, ThreadSafeInternalButton> buttonMap;
-	private final ArrayList<String> device_ids, button_refs;
+	private Map<String, ThreadSafeHolder> joyMap;
+	private final ArrayList<String> device_ids, button_refs, joy_refs;
 
 	public Database(ThreadingRobot bot) {
 		robot = bot;
 		device_ids = getDeviceIDs();
 		button_refs = getButtonRefs();
+		joy_refs = getJoyRefs();
 
 		HashMap<String, ThreadSafeHolder> tempMap = new HashMap<>();
 		deviceMap = Collections.synchronizedMap(tempMap);
 		fillDeviceMap();
 		buttonMap = Collections.synchronizedMap(new HashMap<>());
 		fillButtonMap();
+		joyMap = Collections.synchronizedMap(new HashMap<>());
+		fillJoyMap();
 
 	}
 
@@ -319,6 +370,14 @@ class Database {
 			return robot.setDeviceIDs();
 		} else {
 			return device_ids;
+		}
+	}
+
+	public ArrayList<String> getJoyRefs() {
+		if (joy_refs == null) {
+			return robot.setJoyRefs();
+		} else {
+			return joy_refs;
 		}
 	}
 
@@ -338,8 +397,18 @@ class Database {
 		}
 	}
 
+	private void fillJoyMap() {
+		for (String key : joy_refs) {
+			joyMap.put(key, new ThreadSafeHolder());
+		}
+	}
+
 	public double getValue(String key) {
 		return deviceMap.get(key).getValue();
+	}
+
+	public double getJoyValue(String key) {
+		return joyMap.get(key).getValue();
 	}
 
 	public void setValue(String key, double val) {
@@ -352,6 +421,34 @@ class Database {
 
 	public synchronized void setButtonValue(String ref, boolean newValue) {
 		buttonMap.get(ref).setPressed(newValue);
+	}
+}
+
+class OI {
+	ThreadingRobot robot;
+	private Map<String, Boolean> buttonMapshot;
+	private Map<String, BooleanSupplier> buttonCallMap;
+	private Map<String, Double> joyMapshot;
+	private Map<String, DoubleSupplier> joyCallMap;
+	private ArrayList<ThreadingJoystick> joyList;
+
+	public OI(ThreadingRobot bot) {
+		robot = bot;
+		buttonMapshot = new HashMap<>();
+		buttonCallMap = new HashMap<>();
+		joyMapshot = new HashMap<>();
+		joyCallMap = new HashMap<>();
+		joyList = robot.getJoysticks();
+	}
+	
+	public ThreadingJoystick getJoystick(String ref) {
+		ThreadingJoystick returner = null;
+		for (ThreadingJoystick joy: joyList) {
+			if (joy.getRef().equals(ref)) {
+				returner = joy;
+			}
+		}
+		return returner;
 	}
 }
 
@@ -381,7 +478,6 @@ class ThreadSafeHolder {
 }
 
 class ThreadSafeInternalButton extends InternalButton {
-
 	@Override
 	public synchronized void setInverted(boolean inverted) {
 		// TODO Auto-generated method stub
