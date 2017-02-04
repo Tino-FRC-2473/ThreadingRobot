@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BooleanSupplier;
@@ -36,15 +38,27 @@ public class ThreadingRobot extends IterativeRobot {
 	Map<String, Supplier<Command>> commandsMap;
 	Map<String, Subsystem> subsystems;
 	private ArrayList<ThreadingJoystick> joyList;
+	private ArrayList<ThreadingButton> buttonList;
 	private Map<String, DoubleSupplier> deviceCalls;
 	public ArrayBlockingQueue<String> tempData;
 	private int delay = 10;
+	private OI oi;
+	private Timer robotControlLoop;
+	private boolean isTimerRunning;
 
 	@Override
 	public void robotInit() {
 		joyList = new ArrayList<>();
+		buttonList = new ArrayList<>();
+		updateJoyList();
+		oi = new OI(this);
+		oi.setJoysticks();
+		updateButtonList();
+		oi.setButtons();
 		database = new Database(this);
 		sense = new SensorThread(this, delay);
+		robotControlLoop = new Timer(false);
+		isTimerRunning = false;
 
 		// code for creating all networking threads
 		ServerSocket server;
@@ -87,8 +101,8 @@ public class ThreadingRobot extends IterativeRobot {
 		joyList.add(new ThreadingJoystick(port, ref, value));
 	}
 
-	public double getJoyValue(String key) {
-		return database.getJoyValue(key);
+	public double getJoyValue(String ref) {
+		return database.getJoyValue(ref);
 	}
 
 	public void addJoy(int port, int numAxisTypes, int numButtonTypes, String ref, String value) {
@@ -99,6 +113,10 @@ public class ThreadingRobot extends IterativeRobot {
 		return joyList;
 	}
 
+	public ThreadingJoystick getJoystick(String ref) {
+		return oi.getJoystick(ref);
+	}
+
 	public ArrayList<String> setJoyRefs() {
 		ArrayList<String> returner = new ArrayList<>();
 		for (ThreadingJoystick joy : joyList) {
@@ -107,29 +125,56 @@ public class ThreadingRobot extends IterativeRobot {
 		return returner;
 	}
 
-	// Method to override
-	public void updateDeviceCalls() {
-
+	public void addButton(String ref, BooleanSupplier value, String condition, Command command) {
+		buttonList.add(new ThreadingButton(ref, value, condition, command));
 	}
 
-	// Method to override
-	public void updateJoyList() {
-
+	public boolean getButtonValue(String ref) {
+		return database.getButtonValue(ref);
 	}
 
-	// Method to override
+	public ArrayList<ThreadingButton> getButtons() {
+		return buttonList;
+	}
+
+	public ArrayList<String> setButtonRefs() {
+		ArrayList<String> returner = new ArrayList<>();
+		for (ThreadingButton button : buttonList) {
+			returner.add(button.getRef());
+		}
+		return returner;
+	}
+
+	public ArrayList<String> setDeviceIDs() {
+		ArrayList<String> returner = new ArrayList<>();
+		for (String key : deviceCalls.keySet()) {
+			returner.add(key);
+		}
+		return returner;
+	}
+
 	public Map<String, DoubleSupplier> deviceCalls() {
 		return deviceCalls;
 	}
 
-	// Method to override
-	public ArrayList<String> setDeviceIDs() {
-		return new ArrayList<String>();
+	// Method MUST be overriden
+	public void updateDeviceCalls() {
+
 	}
 
-	// Method to override
-	public ArrayList<String> setButtonRefs() {
-		return new ArrayList<String>();
+	// Method MUST be overriden
+	public void updateJoyList() {
+
+	}
+
+	// Method MUST be overriden
+	public void updateButtonList() {
+
+	}
+
+	// Method MUST be overriden
+	public void addSystems() {
+		// subsystems.put("ExampleSubsystem", new ExampleSubsystem());
 	}
 
 	// Method to override
@@ -152,10 +197,6 @@ public class ThreadingRobot extends IterativeRobot {
 		for (String key : subsystems.keySet()) {
 			commandsMap.put(key, () -> subsystems.get(key).getCurrentCommand());
 		}
-	}
-
-	public void addSystems() {
-		// subsystems.put("ExampleSubsystem", new ExampleSubsystem());
 	}
 
 	@Override
@@ -185,7 +226,7 @@ public class ThreadingRobot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		Scheduler.getInstance().run();
+		runTeleop();
 	}
 
 	@Override
@@ -199,6 +240,19 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public int getPort() {
 		return server_port;
+	}
+
+	private void runTeleop() {
+		if (!isTimerRunning) {
+			robotControlLoop.scheduleAtFixedRate(new TimerTask() {
+
+				@Override
+				public void run() {
+					Scheduler.getInstance().run();
+				}
+			}, 0, 20);
+			isTimerRunning = true;
+		}
 	}
 }
 
@@ -403,20 +457,28 @@ class Database {
 		}
 	}
 
-	public double getValue(String key) {
+	public synchronized double getJoyValue(String ref) {
+		return joyMap.get(ref).getValue();
+	}
+
+	public synchronized void setJoyValue(String ref, double val) {
+		joyMap.get(ref).setValue(val);
+	}
+
+	public synchronized double getValue(String key) {
 		return deviceMap.get(key).getValue();
 	}
 
-	public double getJoyValue(String key) {
-		return joyMap.get(key).getValue();
-	}
-
-	public void setValue(String key, double val) {
+	public synchronized void setValue(String key, double val) {
 		deviceMap.get(key).setValue(val);
 	}
 
 	public synchronized Button getButton(String ref) {
 		return buttonMap.get(ref);
+	}
+
+	public synchronized boolean getButtonValue(String ref) {
+		return buttonMap.get(ref).get();
 	}
 
 	public synchronized void setButtonValue(String ref, boolean newValue) {
@@ -431,6 +493,7 @@ class OI {
 	private Map<String, Double> joyMapshot;
 	private Map<String, DoubleSupplier> joyCallMap;
 	private ArrayList<ThreadingJoystick> joyList;
+	private ArrayList<ThreadingButton> buttonList;
 
 	public OI(ThreadingRobot bot) {
 		robot = bot;
@@ -438,17 +501,64 @@ class OI {
 		buttonCallMap = new HashMap<>();
 		joyMapshot = new HashMap<>();
 		joyCallMap = new HashMap<>();
-		joyList = robot.getJoysticks();
+
+		execute();
 	}
-	
+
+	private void execute() {
+		for (ThreadingButton button : buttonList) {
+			button.activate(robot.database.getButton(button.getRef()));
+		}
+	}
+
 	public ThreadingJoystick getJoystick(String ref) {
 		ThreadingJoystick returner = null;
-		for (ThreadingJoystick joy: joyList) {
+		for (ThreadingJoystick joy : joyList) {
 			if (joy.getRef().equals(ref)) {
 				returner = joy;
 			}
 		}
 		return returner;
+	}
+
+	public void setButtons() {
+		buttonList = robot.getButtons();
+	}
+
+	public void setJoysticks() {
+		joyList = robot.getJoysticks();
+	}
+
+	public void fillButtonCallMap() {
+		for (ThreadingButton button : buttonList) {
+			buttonCallMap.put(button.getRef(), button.getValue());
+		}
+	}
+
+	public void fillJoyCallMap() {
+		for (ThreadingJoystick joy : joyList) {
+			joyCallMap.put(joy.getRef(), joy.getValue());
+		}
+	}
+
+	public void updateButtons() {
+		for (String ref : buttonCallMap.keySet()) {
+			buttonMapshot.put(ref, buttonCallMap.get(ref).getAsBoolean());
+		}
+
+		for (String ref : buttonMapshot.keySet()) {
+			robot.database.setButtonValue(ref, buttonMapshot.get(ref));
+		}
+	}
+
+	public void updateJoysticks() {
+		for (String ref : joyCallMap.keySet()) {
+			joyMapshot.put(ref, joyCallMap.get(ref).getAsDouble());
+		}
+
+		for (String ref : joyMapshot.keySet()) {
+			robot.database.setJoyValue(ref, joyMapshot.get(ref));
+		}
 	}
 }
 
