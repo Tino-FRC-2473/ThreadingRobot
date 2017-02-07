@@ -72,6 +72,9 @@ public class ThreadingRobot extends IterativeRobot {
 		ServerSocket server;
 
 		try {
+			if (server_port == 0) {
+				server_port = 8080;
+			}
 			server = new ServerSocket(server_port);
 			Socket socket = server.accept();
 			OutputStream out_stream = socket.getOutputStream();
@@ -143,6 +146,10 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public ArrayList<ThreadingButton> getButtons() {
 		return buttonList;
+	}
+
+	public Map<String, Subsystem> getSubsystems() {
+		return subsystems;
 	}
 
 	public ArrayList<String> setButtonRefs() {
