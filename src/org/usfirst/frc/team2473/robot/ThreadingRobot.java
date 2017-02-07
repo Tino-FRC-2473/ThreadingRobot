@@ -15,15 +15,6 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.usfirst.frc.team2473.robot.Database;
-import org.usfirst.frc.team2473.robot.FlusherThread;
-import org.usfirst.frc.team2473.robot.OI;
-import org.usfirst.frc.team2473.robot.SensorThread;
-import org.usfirst.frc.team2473.robot.ThreadingButton;
-import org.usfirst.frc.team2473.robot.ThreadingJoystick;
-import org.usfirst.frc.team2473.robot.ThreadingRobot;
-import org.usfirst.frc.team2473.robot.UpdaterThread;
-
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
