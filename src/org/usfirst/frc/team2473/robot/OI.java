@@ -21,11 +21,9 @@ public class OI {
 		buttonCallMap = new HashMap<>();
 		joyMapshot = new HashMap<>();
 		joyCallMap = new HashMap<>();
-
-		execute();
 	}
 
-	private void execute() {
+	public void execute() {
 		for (ThreadingButton button : buttonList) {
 			button.activate(robot.database.getButton(button.getRef()));
 		}

@@ -48,6 +48,7 @@ public class ThreadingRobot extends IterativeRobot {
 		oi.setJoysticks();
 		updateButtonList();
 		oi.setButtons();
+		oi.execute();
 		database = new Database(this);
 		sense = new SensorThread(this, delay);
 		robotControlLoop = new Timer(false);
