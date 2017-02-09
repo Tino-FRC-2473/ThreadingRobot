@@ -225,6 +225,7 @@ public class ThreadingRobot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
+		
 		runTeleop();
 	}
 
@@ -248,6 +249,8 @@ public class ThreadingRobot extends IterativeRobot {
 				@Override
 				public void run() {
 					Scheduler.getInstance().run();
+					oi.updateButtons();
+					oi.updateJoysticks();
 				}
 			}, 0, 20);
 			isTimerRunning = true;
