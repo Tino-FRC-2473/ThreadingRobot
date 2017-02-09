@@ -16,19 +16,24 @@ public class ThreadingButton extends InternalButton {
 		this.ref = ref;
 		this.value = value;
 		this.command = command;
+		this.condition = condition;
 	}
 
 	public void activate(Button button) {
-		if (condition.equals("held")) {
-			button.whileHeld(command);
-		} else if (condition.equals("pressed")) {
-			button.whenPressed(command);
-		} else if (condition.equals("released")) {
-			button.whenReleased(command);
-		} else if (condition.equals("toggle")) {
-			button.toggleWhenPressed(command);
-		} else if (condition.equals("cancel")) {
-			button.cancelWhenPressed(command);
+		if (button != null) {
+			if (condition.equals("held")) {
+				button.whileHeld(command);
+			} else if (condition.equals("pressed")) {
+				button.whenPressed(command);
+			} else if (condition.equals("released")) {
+				button.whenReleased(command);
+			} else if (condition.equals("toggle")) {
+				button.toggleWhenPressed(command);
+			} else if (condition.equals("cancel")) {
+				button.cancelWhenPressed(command);
+			}
+		} else {
+			System.out.println("NULL BUTTON");
 		}
 	}
 

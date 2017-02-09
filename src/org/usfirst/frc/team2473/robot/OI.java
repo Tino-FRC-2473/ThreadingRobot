@@ -21,6 +21,8 @@ public class OI {
 		buttonCallMap = new HashMap<>();
 		joyMapshot = new HashMap<>();
 		joyCallMap = new HashMap<>();
+		buttonList = new ArrayList<>();
+		joyList = new ArrayList<>();
 	}
 
 	public void execute() {

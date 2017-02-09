@@ -48,8 +48,12 @@ public class ThreadingRobot extends IterativeRobot {
 		oi.setJoysticks();
 		updateButtonList();
 		oi.setButtons();
-		oi.execute();
+		subsystems = new HashMap<>();
+		commandsMap = new HashMap<>();
+		deviceCalls = new HashMap<>();
+		updateDeviceCalls();
 		database = new Database(this);
+		oi.execute();
 		sense = new SensorThread(this, delay);
 		robotControlLoop = new Timer(false);
 		isTimerRunning = false;
@@ -67,10 +71,6 @@ public class ThreadingRobot extends IterativeRobot {
 			e.printStackTrace();
 		}
 
-		subsystems = new HashMap<>();
-		commandsMap = new HashMap<>();
-		deviceCalls = new HashMap<>();
-		updateDeviceCalls();
 		updater = new UpdaterThread(this, commandsMap);
 		flush = new FlusherThread(this, out);
 		addCommandListeners();

@@ -20,7 +20,7 @@ public class Database {
 		button_refs = getButtonRefs();
 		joy_refs = getJoyRefs();
 
-		HashMap<String, ThreadSafeHolder> tempMap = new HashMap<>();
+		Map<String, ThreadSafeHolder> tempMap = new HashMap<>();
 		deviceMap = Collections.synchronizedMap(tempMap);
 		fillDeviceMap();
 		buttonMap = Collections.synchronizedMap(new HashMap<>());
@@ -47,7 +47,12 @@ public class Database {
 	}
 
 	public ArrayList<String> getButtonRefs() {
-		return robot.setButtonRefs();
+		if (button_refs == null) {
+			return robot.setButtonRefs();
+		}
+		else {
+			return button_refs;
+		}
 	}
 
 	private void fillDeviceMap() {
