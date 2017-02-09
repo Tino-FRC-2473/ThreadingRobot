@@ -20,7 +20,8 @@ public class ThreadingButton extends InternalButton {
 	}
 
 	public void activate(Button button) {
-		if (button != null) {
+		try {
+			command = command.getClass().newInstance();
 			if (condition.equals("held")) {
 				button.whileHeld(command);
 			} else if (condition.equals("pressed")) {
@@ -32,8 +33,8 @@ public class ThreadingButton extends InternalButton {
 			} else if (condition.equals("cancel")) {
 				button.cancelWhenPressed(command);
 			}
-		} else {
-			System.out.println("NULL BUTTON");
+		} catch (NullPointerException | InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
 	}
 

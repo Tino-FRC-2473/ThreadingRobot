@@ -62,13 +62,16 @@ public class OI {
 	}
 
 	public void updateButtons() {
+	System.out.println("Updating buttons...");
 		for (String ref : buttonCallMap.keySet()) {
 			buttonMapshot.put(ref, buttonCallMap.get(ref).getAsBoolean());
 		}
+		System.out.println("Halfway through updating buttons...");
 
 		for (String ref : buttonMapshot.keySet()) {
 			robot.database.setButtonValue(ref, buttonMapshot.get(ref));
 		}
+		System.out.println("Finished updating buttons!");
 	}
 
 	public void updateJoysticks() {
