@@ -72,31 +72,31 @@ public class Database {
 		}
 	}
 
-	public synchronized double getJoyValue(String ref) {
+	public double getJoyValue(String ref) {
 		return joyMap.get(ref).getValue();
 	}
 
-	public synchronized void setJoyValue(String ref, double val) {
+	public void setJoyValue(String ref, double val) {
 		joyMap.get(ref).setValue(val);
 	}
 
-	public synchronized double getValue(String key) {
+	public double getValue(String key) {
 		return deviceMap.get(key).getValue();
 	}
 
-	public synchronized void setValue(String key, double val) {
+	public void setValue(String key, double val) {
 		deviceMap.get(key).setValue(val);
 	}
 
-	public synchronized Button getButton(String ref) {
+	public Button getButton(String ref) {
 		return buttonMap.get(ref);
 	}
 
-	public synchronized boolean getButtonValue(String ref) {
+	public boolean getButtonValue(String ref) {
 		return buttonMap.get(ref).get();
 	}
 
-	public synchronized void setButtonValue(String ref, boolean newValue) {
+	public void setButtonValue(String ref, boolean newValue) {
 		buttonMap.get(ref).setPressed(newValue);
 	}
 }

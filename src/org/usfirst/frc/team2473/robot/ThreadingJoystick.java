@@ -49,7 +49,7 @@ public class ThreadingJoystick extends Joystick {
 		} else if (supplier.equals("twist")) {
 			returner = () -> getTwist();
 		} else {
-			throw new InvalidParameterException("The supplier has to be x, y, or z.");
+			throw new InvalidParameterException("The supplier has to be x, y, z, throttle, or twist.");
 		}
 		return returner;
 	}
