@@ -38,6 +38,7 @@ public class ThreadingRobot extends IterativeRobot {
 	private OI oi;
 	private Timer robotControlLoop;
 	private boolean isTimerRunning;
+	private boolean usingNetworking;
 
 	@Override
 	public void robotInit() {
@@ -60,19 +61,21 @@ public class ThreadingRobot extends IterativeRobot {
 		server_port = 8080;
 
 		// code for creating all networking threads
+		
 		ServerSocket server;
+		if(usingNetworking) {			
+			try {
+				server = new ServerSocket(server_port);
+				Socket socket = server.accept();
+				OutputStream out_stream = socket.getOutputStream();
+				out = new PrintStream(out_stream);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-		try {
-			server = new ServerSocket(server_port);
-			Socket socket = server.accept();
-			OutputStream out_stream = socket.getOutputStream();
-			out = new PrintStream(out_stream);
-		} catch (IOException e) {
-			e.printStackTrace();
+			updater = new UpdaterThread(this, commandsMap);
+			flush = new FlusherThread(this, out);
 		}
-
-		updater = new UpdaterThread(this, commandsMap);
-		flush = new FlusherThread(this, out);
 		addCommandListeners();
 	}
 
@@ -157,6 +160,11 @@ public class ThreadingRobot extends IterativeRobot {
 	}
 
 	// Method MUST be overriden
+	public void setNetworking(boolean b) {
+		usingNetworking = b;
+	}
+	
+	// Method MUST be overriden
 	public void updateDeviceCalls() {
 
 	}
@@ -188,8 +196,10 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public void startThreads() {
 		sense.start();
-		updater.start();
-		flush.start();
+		if(usingNetworking) {
+			updater.start();
+			flush.start();			
+		}
 	}
 
 	public void addCommandListeners() {
