@@ -10,4 +10,4 @@ When subclassing ThreadingRobot, the average code length is **7%** of the code l
 - Increased readability of code
 - Increased ease of implementation
 
-####Click (here)[https://github.com/Tino-FRC-2473/ThreadingRobot/releases "Releases"] to download the JAR file.####
+####Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/releases "Releases") to download the JAR file.####
