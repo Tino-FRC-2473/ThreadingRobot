@@ -1,5 +1,5 @@
 #ThreadingRobot#
-####A framework to install when creating a ThreadingRobot object, preventing the need to copy and paste complicated threading code repeatedly.####
+####A framework to install that prevents the need to copy and paste complicated threading and networking code repeatedly.####
 
 When subclassing ThreadingRobot, the average code length is **7%** of the code length when sublcassing Iterative Robot.
 
