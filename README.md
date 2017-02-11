@@ -9,3 +9,5 @@ When subclassing ThreadingRobot, the average code length is **7%** of the code l
 - Able to run on any roboRIO centered system, from a single motor to a full robot
 - Increased readability of code
 - Increased ease of implementation
+
+####Click (here)[https://github.com/Tino-FRC-2473/ThreadingRobot/releases "Releases"] to download the JAR file.
