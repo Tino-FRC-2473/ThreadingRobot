@@ -6,6 +6,6 @@ When subclassing ThreadingRobot, the average code length is **7%** of the code l
 ####Features####
 - Massively reduced code size
 - Built in networking and threading support
-- Able to run on any robo-RIO centered system, from a single motor to a full robot
+- Able to run on any roboRIO centered system, from a single motor to a full robot
 - Increased readability of code
 - Increased ease of implementation
