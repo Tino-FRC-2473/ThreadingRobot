@@ -49,8 +49,7 @@ public class Database {
 	public ArrayList<String> getButtonRefs() {
 		if (button_refs == null) {
 			return robot.setButtonRefs();
-		}
-		else {
+		} else {
 			return button_refs;
 		}
 	}

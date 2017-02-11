@@ -61,9 +61,9 @@ public class ThreadingRobot extends IterativeRobot {
 		server_port = 8080;
 
 		// code for creating all networking threads
-		
+
 		ServerSocket server;
-		if(usingNetworking) {			
+		if (usingNetworking) {
 			try {
 				server = new ServerSocket(server_port);
 				Socket socket = server.accept();
@@ -163,7 +163,7 @@ public class ThreadingRobot extends IterativeRobot {
 	public void setNetworking(boolean b) {
 		usingNetworking = b;
 	}
-	
+
 	// Method MUST be overriden
 	public void updateDeviceCalls() {
 
@@ -196,9 +196,9 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public void startThreads() {
 		sense.start();
-		if(usingNetworking) {
+		if (usingNetworking) {
 			updater.start();
-			flush.start();			
+			flush.start();
 		}
 	}
 
@@ -235,7 +235,7 @@ public class ThreadingRobot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		
+
 		runTeleop();
 	}
 
