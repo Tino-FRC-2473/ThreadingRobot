@@ -1,4 +1,4 @@
-# ThreadingRobot v1.0
+#ThreadingRobot#
 ####A framework to install when creating a ThreadingRobot object, preventing the need to copy and paste complicated threading code repeatedly.####
 
 When subclassing ThreadingRobot, the average code length is **7%** of the code length when sublcassing Iterative Robot.
