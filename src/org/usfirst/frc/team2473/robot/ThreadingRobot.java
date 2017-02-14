@@ -77,6 +77,7 @@ public class ThreadingRobot extends IterativeRobot {
 			flush = new FlusherThread(this, out);
 		}
 		addCommandListeners();
+		startThreads();
 	}
 
 	public double getDeviceValue(String deviceID) {
