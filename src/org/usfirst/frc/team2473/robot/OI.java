@@ -15,7 +15,7 @@ public class OI {
 
 	public void execute() {
 		for (ThreadingButton button : buttonList) {
-			button.activate(robot.database.getButton(button.getRef()));
+			button.activate(robot.getDatabase().getButton(button.getRef()));
 		}
 	}
 
@@ -40,13 +40,13 @@ public class OI {
 
 	public void updateButtons() {
 		for (ThreadingButton button : buttonList) {
-			robot.database.setButtonValue(button.getRef(), button.getValue().getAsBoolean());
+			robot.getDatabase().setButtonValue(button.getRef(), button.getValue().getAsBoolean());
 		}
 	}
 
 	public void updateJoysticks() {
 		for (ThreadingJoystick joy : joyList) {
-			robot.database.setJoyValue(joy.getRef(), joy.getValue().getAsDouble());
+			robot.getDatabase().setJoyValue(joy.getRef(), joy.getValue().getAsDouble());
 		}
 	}
 }

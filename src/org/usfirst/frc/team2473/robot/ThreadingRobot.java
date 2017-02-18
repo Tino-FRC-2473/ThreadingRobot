@@ -27,13 +27,13 @@ public class ThreadingRobot extends IterativeRobot {
 	private UpdaterThread updater;
 	private FlusherThread flush;
 	private SensorThread sense;
-	public Database database;
-	Map<String, Supplier<Command>> commandsMap;
-	Map<String, Subsystem> subsystems;
+	private Database database;
+	private Map<String, Supplier<Command>> commandsMap;
+	private Map<String, Subsystem> subsystemsMap;
 	private ArrayList<ThreadingJoystick> joyList;
 	private ArrayList<ThreadingButton> buttonList;
 	private Map<String, DoubleSupplier> deviceCalls;
-	public ArrayBlockingQueue<String> tempData;
+	private ArrayBlockingQueue<String> tempData;
 	private int delay = 10;
 	private OI oi;
 	private Timer robotControlLoop;
@@ -49,7 +49,7 @@ public class ThreadingRobot extends IterativeRobot {
 		oi.setJoysticks();
 		updateButtonList();
 		oi.setButtons();
-		subsystems = new HashMap<>();
+		subsystemsMap = new HashMap<>();
 		commandsMap = new HashMap<>();
 		deviceCalls = new HashMap<>();
 		updateDeviceCalls();
@@ -137,7 +137,7 @@ public class ThreadingRobot extends IterativeRobot {
 	}
 
 	public Map<String, Subsystem> getSubsystems() {
-		return subsystems;
+		return subsystemsMap;
 	}
 
 	public ArrayList<String> setButtonRefs() {
@@ -182,7 +182,7 @@ public class ThreadingRobot extends IterativeRobot {
 
 	// Method MUST be overriden
 	public void addSystems() {
-		// subsystems.put("ExampleSubsystem", new ExampleSubsystem());
+		// subsystemsMap.put("ExampleSubsystem", new ExampleSubsystem());
 	}
 
 	// Method to override
@@ -204,8 +204,8 @@ public class ThreadingRobot extends IterativeRobot {
 	}
 
 	public void addCommandListeners() {
-		for (String key : subsystems.keySet()) {
-			commandsMap.put(key, () -> subsystems.get(key).getCurrentCommand());
+		for (String key : subsystemsMap.keySet()) {
+			commandsMap.put(key, () -> subsystemsMap.get(key).getCurrentCommand());
 		}
 	}
 
@@ -251,6 +251,14 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public int getPort() {
 		return server_port;
+	}
+
+	public Database getDatabase() {
+		return database;
+	}
+
+	public ArrayBlockingQueue<String> getTempData() {
+		return tempData;
 	}
 
 	protected void runTeleop() {

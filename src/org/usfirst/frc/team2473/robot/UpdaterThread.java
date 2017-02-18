@@ -21,15 +21,15 @@ public class UpdaterThread extends Thread {
 		while (alive) {
 			try {
 				String str = "";
-				for (String key : robot.database.getDeviceIDs()) {
-					str += (robot.database.getValue(key) + " ");
+				for (String key : robot.getDatabase().getDeviceIDs()) {
+					str += (robot.getDatabase().getValue(key) + " ");
 				}
 
 				for (String s : commandMap.keySet()) {
 					boolean b = commandMap.get(s).get() != null;
 					str += (b + " ");
 				}
-				robot.tempData.add(str);
+				robot.getTempData().add(str);
 				Thread.sleep(robot.getDelay());
 			} catch (InterruptedException e) {
 				e.printStackTrace();

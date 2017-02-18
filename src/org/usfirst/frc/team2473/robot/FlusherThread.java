@@ -30,7 +30,7 @@ public class FlusherThread extends Thread {
 	public void run() {
 		while (alive) {
 			ArrayList<String> arr = new ArrayList<>();
-			robot.tempData.drainTo(arr);
+			robot.getTempData().drainTo(arr);
 
 			for (int i = 0; i < arr.size(); i++) {
 				out.println(arr.get(i));
