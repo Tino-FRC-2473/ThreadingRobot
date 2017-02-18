@@ -6,9 +6,8 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class ThreadingJoystick extends Joystick {
-
-	String ref;
-	DoubleSupplier value;
+	private String ref;
+	private DoubleSupplier value;
 
 	public ThreadingJoystick(int port, int numAxisTypes, int numButtonTypes, String ref, String value) {
 		super(port, numAxisTypes, numButtonTypes);

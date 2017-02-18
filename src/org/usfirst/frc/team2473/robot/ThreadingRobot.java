@@ -84,7 +84,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return database.getValue(deviceID);
 	}
 
-	public int getDelay() {
+	protected int getDelay() {
 		return delay;
 	}
 
@@ -108,7 +108,7 @@ public class ThreadingRobot extends IterativeRobot {
 		joyList.add(new ThreadingJoystick(port, numAxisTypes, numButtonTypes, ref, value));
 	}
 
-	public ArrayList<ThreadingJoystick> getJoysticks() {
+	protected ArrayList<ThreadingJoystick> getJoysticks() {
 		return joyList;
 	}
 
@@ -116,7 +116,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return oi.getJoystick(ref);
 	}
 
-	public ArrayList<String> setJoyRefs() {
+	protected ArrayList<String> setJoyRefs() {
 		ArrayList<String> returner = new ArrayList<>();
 		for (ThreadingJoystick joy : joyList) {
 			returner.add(joy.getRef());
@@ -132,7 +132,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return database.getButtonValue(ref);
 	}
 
-	public ArrayList<ThreadingButton> getButtons() {
+	protected ArrayList<ThreadingButton> getButtons() {
 		return buttonList;
 	}
 
@@ -140,7 +140,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return subsystemsMap;
 	}
 
-	public ArrayList<String> setButtonRefs() {
+	protected ArrayList<String> setButtonRefs() {
 		ArrayList<String> returner = new ArrayList<>();
 		for (ThreadingButton button : buttonList) {
 			returner.add(button.getRef());
@@ -148,7 +148,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return returner;
 	}
 
-	public ArrayList<String> setDeviceIDs() {
+	protected ArrayList<String> setDeviceIDs() {
 		ArrayList<String> returner = new ArrayList<>();
 		for (String key : deviceCalls.keySet()) {
 			returner.add(key);
@@ -156,7 +156,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return returner;
 	}
 
-	public Map<String, DoubleSupplier> deviceCalls() {
+	protected Map<String, DoubleSupplier> deviceCalls() {
 		return deviceCalls;
 	}
 
@@ -195,7 +195,7 @@ public class ThreadingRobot extends IterativeRobot {
 
 	}
 
-	public void startThreads() {
+	private void startThreads() {
 		sense.start();
 		if (usingNetworking) {
 			updater.start();
@@ -203,7 +203,7 @@ public class ThreadingRobot extends IterativeRobot {
 		}
 	}
 
-	public void addCommandListeners() {
+	private void addCommandListeners() {
 		for (String key : subsystemsMap.keySet()) {
 			commandsMap.put(key, () -> subsystemsMap.get(key).getCurrentCommand());
 		}
@@ -239,6 +239,11 @@ public class ThreadingRobot extends IterativeRobot {
 
 		runTeleop();
 	}
+	
+	@Override
+	public void testInit() {
+		
+	}
 
 	@Override
 	public void testPeriodic() {
@@ -257,7 +262,7 @@ public class ThreadingRobot extends IterativeRobot {
 		return database;
 	}
 
-	public ArrayBlockingQueue<String> getTempData() {
+	protected ArrayBlockingQueue<String> getTempData() {
 		return tempData;
 	}
 
