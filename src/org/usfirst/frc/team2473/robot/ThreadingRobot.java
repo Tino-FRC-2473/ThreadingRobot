@@ -15,6 +15,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.CANTalon;
+
+import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -24,15 +27,19 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 public class ThreadingRobot extends IterativeRobot {
 	private PrintStream out;
 	private int server_port;
-	private UpdaterThread updater;
-	private FlusherThread flush;
+	private CommandThread updater;
+	private CommandFlusher flush;
 	private SensorThread sense;
 	private Database database;
 	private Map<String, Supplier<Command>> commandsMap;
 	private Map<String, Subsystem> subsystemsMap;
+	private ArrayList<Server> servers;
 	private ArrayList<ThreadingJoystick> joyList;
 	private ArrayList<ThreadingButton> buttonList;
-	private Map<String, DoubleSupplier> deviceCalls;
+	private Map<String, DoubleSupplier> doubleCalls; //stores double values of sensors
+	private Map<String, BooleanSupplier> booleanCalls; //stores boolean values of sensors
+	private ArrayList<AnalogGyro> gyros;
+	private ArrayList<CANTalon> encoders;
 	private ArrayBlockingQueue<String> tempData;
 	private int delay = 10;
 	private OI oi;
@@ -42,6 +49,8 @@ public class ThreadingRobot extends IterativeRobot {
 
 	@Override
 	public void robotInit() {
+		gyros = new ArrayList<AnalogGyro>();
+		encoders = new ArrayList<CANTalon>();
 		joyList = new ArrayList<>();
 		buttonList = new ArrayList<>();
 		updateJoyList();
@@ -51,7 +60,8 @@ public class ThreadingRobot extends IterativeRobot {
 		oi.setButtons();
 		subsystemsMap = new HashMap<>();
 		commandsMap = new HashMap<>();
-		deviceCalls = new HashMap<>();
+		doubleCalls = new HashMap<>();
+		booleanCalls = new HashMap<>();
 		updateDeviceCalls();
 		database = new Database(this);
 		oi.execute();
@@ -73,8 +83,8 @@ public class ThreadingRobot extends IterativeRobot {
 				e.printStackTrace();
 			}
 
-			updater = new UpdaterThread(this, commandsMap);
-			flush = new FlusherThread(this, out);
+			updater = new CommandThread(this, commandsMap);
+			flush = new CommandFlusher(this, out);
 		}
 		addCommandListeners();
 		startThreads();
@@ -93,7 +103,11 @@ public class ThreadingRobot extends IterativeRobot {
 	}
 
 	public void addDeviceCall(String deviceID, DoubleSupplier valueSupplier) {
-		deviceCalls.put(deviceID, valueSupplier);
+		doubleCalls.put(deviceID, valueSupplier);
+	}
+	
+	public void addDeviceCall(String deviceID, BooleanSupplier valueSupplier) {
+		booleanCalls.put(deviceID, valueSupplier);
 	}
 
 	public void addJoy(int port, String ref, String value) {
@@ -150,27 +164,36 @@ public class ThreadingRobot extends IterativeRobot {
 
 	protected ArrayList<String> setDeviceIDs() {
 		ArrayList<String> returner = new ArrayList<>();
-		for (String key : deviceCalls.keySet()) {
-			returner.add(key);
-		}
+		for (String key : doubleCalls.keySet()) returner.add(key);
+		for (String key : booleanCalls.keySet()) returner.add(key);
 		return returner;
 	}
 
-	protected Map<String, DoubleSupplier> deviceCalls() {
-		return deviceCalls;
+	protected Map<String, DoubleSupplier> doubleCalls() {
+		return doubleCalls;
 	}
 
-	// Method MUST be overriden
+	protected Map<String, BooleanSupplier> booleanCalls() {
+		return booleanCalls;
+	}
+	
+	protected String callType(String device_id) {
+		if(doubleCalls.keySet().contains(device_id)) return "double";
+		else if(booleanCalls.keySet().contains(device_id)) return "boolean";
+		else return "none";
+	}
+
+	// Method MUST be overridden
 	public void setNetworking(boolean b) {
 		usingNetworking = b;
 	}
 
-	// Method MUST be overriden
+	// Method MUST be overridden
 	public void updateDeviceCalls() {
 
 	}
 
-	// Method MUST be overriden
+	// Method MUST be overridden
 	public void updateJoyList() {
 
 	}
@@ -185,14 +208,28 @@ public class ThreadingRobot extends IterativeRobot {
 		// subsystemsMap.put("ExampleSubsystem", new ExampleSubsystem());
 	}
 
-	// Method to override
-	public void resetEncoders() {
 
+	protected void resetEncoders() {
+		for(CANTalon talon : encoders) resetEnc(talon);			
+	}
+	
+	private void resetEnc(CANTalon talon) {
+		talon.changeControlMode(CANTalon.TalonControlMode.Position);
+		talon.setPosition(0);
+		talon.changeControlMode(CANTalon.TalonControlMode.PercentVbus);
 	}
 
 	// Method to override
-	public void resetGyro() {
+	protected void resetGyro() {
+		for(AnalogGyro gyro : gyros) gyro.reset();
+	}
 
+	public void addEncoderDevice(CANTalon talon) {
+		encoders.add(talon);
+	}
+
+	public void addGyroDevice(AnalogGyro gyro) {
+		gyros.add(gyro);
 	}
 
 	private void startThreads() {
@@ -200,13 +237,12 @@ public class ThreadingRobot extends IterativeRobot {
 		if (usingNetworking) {
 			updater.start();
 			flush.start();
+			for(Server s : servers) s.run();
 		}
 	}
 
 	private void addCommandListeners() {
-		for (String key : subsystemsMap.keySet()) {
-			commandsMap.put(key, () -> subsystemsMap.get(key).getCurrentCommand());
-		}
+		for (String key : subsystemsMap.keySet()) commandsMap.put(key, () -> subsystemsMap.get(key).getCurrentCommand());
 	}
 
 	@Override
@@ -256,6 +292,15 @@ public class ThreadingRobot extends IterativeRobot {
 
 	public int getPort() {
 		return server_port;
+	}
+
+	public void addServer(int port) {
+		servers.add(new Server(port));
+	}
+	
+	public Server getServer(int port) {
+		for(Server s : servers) if(s.getPort()==port) return s;
+		return null;
 	}
 
 	public Database getDatabase() {
