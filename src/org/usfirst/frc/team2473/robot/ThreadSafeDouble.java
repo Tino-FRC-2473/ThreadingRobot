@@ -2,7 +2,7 @@ package org.usfirst.frc.team2473.robot;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class ThreadSafeHolder {
+public class ThreadSafeDouble {
 
 	private volatile double value;
 	private ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
