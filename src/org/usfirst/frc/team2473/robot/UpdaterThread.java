@@ -22,7 +22,7 @@ public class UpdaterThread extends Thread {
 			try {
 				String str = "";
 				for (String key : robot.getDatabase().getDeviceIDs()) {
-					str += (robot.getDatabase().getValue(key) + " ");
+					str += (robot.getDatabase().getDeviceValue(key) + " ");
 				}
 
 				for (String s : commandMap.keySet()) {

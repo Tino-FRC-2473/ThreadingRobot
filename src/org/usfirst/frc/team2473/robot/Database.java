@@ -80,11 +80,11 @@ public class Database {
 		joyMap.get(ref).setValue(val);
 	}
 
-	public double getValue(String key) {
+	public double getDeviceValue(String key) {
 		return deviceMap.get(key).getValue();
 	}
 
-	public void setValue(String key, double val) {
+	public void setDeviceValue(String key, double val) {
 		deviceMap.get(key).setValue(val);
 	}
 

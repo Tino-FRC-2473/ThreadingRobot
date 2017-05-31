@@ -61,7 +61,7 @@ public class SensorThread extends Thread {
 		}
 
 		for (String key : temp.keySet()) {
-			robot.getDatabase().setValue(key, temp.get(key));
+			robot.getDatabase().setDeviceValue(key, temp.get(key));
 		}
 	}
 }

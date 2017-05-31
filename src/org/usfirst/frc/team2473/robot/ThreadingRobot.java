@@ -81,7 +81,7 @@ public class ThreadingRobot extends IterativeRobot {
 	}
 
 	public double getDeviceValue(String deviceID) {
-		return database.getValue(deviceID);
+		return database.getDeviceValue(deviceID);
 	}
 
 	protected int getDelay() {
