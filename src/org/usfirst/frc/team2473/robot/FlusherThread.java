@@ -1,46 +1,33 @@
 package org.usfirst.frc.team2473.robot;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 public class FlusherThread extends Thread {
+	
 	boolean alive;
-	ThreadingRobot robot;
 	PrintStream out;
-	int delay;
-
-	public FlusherThread(ThreadingRobot bot, PrintStream out) {
-		robot = bot;
-		this.out = out;
+	
+	public FlusherThread(PrintStream out) {
 		alive = true;
-		super.setDaemon(false);
-
-		if (1000 / robot.getDelay() >= 10) {
-			delay = 1000;
-		} else {
-			delay = robot.getDelay() * 10;
-		}
-	}
-
-	public void end() {
-		alive = false;
+		this.out = out;
 	}
 
 	@Override
 	public void run() {
-		while (alive) {
-			ArrayList<String> arr = new ArrayList<>();
-			robot.getTempData().drainTo(arr);
-
-			for (int i = 0; i < arr.size(); i++) {
-				out.println(arr.get(i));
-			}
-
-			try {
-				Thread.sleep(delay);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+		while(alive) {
+			execute();			
 		}
+	}
+	
+	public void end() {
+		alive = false;
+	}
+	
+	public void execute() {
+		
+	}
+	
+	public void serverPrint(String s) {
+		out.println(s);
 	}
 }
