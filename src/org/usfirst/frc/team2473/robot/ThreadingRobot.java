@@ -92,8 +92,8 @@ public class ThreadingRobot extends IterativeRobot {
 		this.delay = delay;
 	}
 
-	public void addDeviceCall(String deviceID, DoubleSupplier supplier) {
-		deviceCalls.put(deviceID, supplier);
+	public void addDeviceCall(String deviceID, DoubleSupplier valueSupplier) {
+		deviceCalls.put(deviceID, valueSupplier);
 	}
 
 	public void addJoy(int port, String ref, String value) {
