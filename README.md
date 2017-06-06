@@ -23,4 +23,4 @@ When subclassing ThreadingRobot, the average code length is **less than half** o
 - Integrated Software Generator for less experienced programmers.
 - Implement interfaces in architecture to promote use of certain methods.
 
-### Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/releases "Releases") to download the JAR file.
+### Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
