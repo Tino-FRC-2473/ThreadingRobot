@@ -3,6 +3,8 @@
 
 When subclassing ThreadingRobot, the average code length is **less than half** of the code length when sublcassing IterativeRobot.
 
+### Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
+
 ### Features
 - Massively reduced code size
 - Built in networking and threading support
@@ -22,5 +24,3 @@ When subclassing ThreadingRobot, the average code length is **less than half** o
 #### Version 3.0
 - Integrated Software Generator for less experienced programmers.
 - Implement interfaces in architecture to promote use of certain methods.
-
-### Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
