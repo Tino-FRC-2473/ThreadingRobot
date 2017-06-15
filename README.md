@@ -4,20 +4,22 @@
 When subclassing ThreadingRobot, the average code length is **less than half** of the code length when sublcassing IterativeRobot.
 
 ### Instructions
-#### All Operating Systems
-1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
+
 #### Mac
+1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
 2. Open Terminal
 3. Type in "cd" and press enter.
 4. Type in "cd wpilib/user/java/lib" and press enter.
 5. Type in "open ." and press enter.
 6. Take the JAR file that you downloaded and drop it in the window that popped up.
+7. Restart Eclipse.
+
 #### Windows
+1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
 2. Open Command Prompt
 3. Type in "cd C:\Users\username\wpilib\user\java\lib" and press enter. **Replace "username" with the name of the user you are currently logged in to.**
 4. Type in "start ." and press enter.
-5. Take the JAR file that you downloaded and drop it in the window that popped up.7. Restart Eclipse.
-#### All Operating Systems
+5. Take the JAR file that you downloaded and drop it in the window that popped up.
 7. Restart Eclipse.
 
 ### Features
