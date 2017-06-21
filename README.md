@@ -39,5 +39,4 @@ When subclassing ThreadingRobot, the average code length is **less than half** o
 - More convenient naming of parameters.
 
 #### Version 3.0
-- Integrated Software Generator for less experienced programmers.
 - Implement interfaces in architecture to promote use of certain methods.
