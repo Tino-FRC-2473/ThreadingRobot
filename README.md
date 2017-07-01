@@ -6,7 +6,7 @@ When subclassing ThreadingRobot, the average code length is **less than half** o
 ### Instructions
 
 #### Mac
-1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
+1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/Releases/ThreadingRobot.jar) to download the JAR file.
 2. Open Terminal
 3. Type in "cd" and press enter.
 4. Type in "cd wpilib/user/java/lib" and press enter.
@@ -15,7 +15,7 @@ When subclassing ThreadingRobot, the average code length is **less than half** o
 7. Restart Eclipse.
 
 #### Windows
-1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/ThreadingRobot.jar "Releases") to download the JAR file.
+1.  Click [here](https://github.com/Tino-FRC-2473/ThreadingRobot/raw/master/Releases/ThreadingRobot.jar) to download the JAR file.
 2. Open Command Prompt
 3. Type in "cd C:\Users\username\wpilib\user\java\lib" and press enter. **Replace "username" with the name of the user you are currently logged in to.**
 4. Type in "start ." and press enter.
